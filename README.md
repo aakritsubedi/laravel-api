@@ -62,3 +62,26 @@ We will be building a CRUD API. CRUD means Create, Read, Update, and Delete. Our
 - `GET /api/students/{id}` will return a student record by referencing its id and will be accepting `GET` requests.
 - `PUT /api/students/{id}` will update an existing student record by referencing its id and will be accepting `PUT` requests.
 - `DELETE /api/students/{id}` will delete a student record by referencing its id and will be accepting `DELETE` requests.
+
+### Steps 
+to create a resources(students) in Laravel 
+
+1. Create the **database** and **migrations**
+```shell
+$ php artisan make:migration create_student_table --create=student
+```
+2. Model and Service 
+- Create a **modal** 
+```shell
+$ php artisan make:model Student
+```
+___
+```shell
+$ php artisan make:model Student --migration
+```
+- Create a **service**
+3. Create a **controller** to get info from db (business logic)
+```shell
+$ php artisan make:controller StudentController
+```
+4. return that info
