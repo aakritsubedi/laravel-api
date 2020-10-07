@@ -149,3 +149,29 @@ $ php artisan migrate
 ![Migration](./docs/images/terminal_result_migration.png)
 **student table and other default table in database**
 ![phpmyadmin](./docs/images/phpmyadmin_initial.png)
+
+### 2. Create a Model
+Model is a class that represents the logical structure and relationship of underlying data table. In Laravel, each of the database table has a corresponding “Model” that allow us to interact with that table. Models gives you the way to retrieve, insert, and update information into your data table.
+
+A new file named Student.php will be created in the `app` directory.  
+You will have to edit the file to specify the database table we will like to interact with and the fields that can be written to:
+```php
+<?php
+
+namespace App;
+use Illuminate\Database\Eloquent\Model;
+
+class Student extends Model
+{
+    protected $table = 'students';
+    
+    protected $fillable = [
+        'fullname',
+        'email',
+        'contact_no',
+        'status'
+    ];
+}
+
+?>
+```
