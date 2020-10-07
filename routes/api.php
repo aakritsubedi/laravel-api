@@ -18,6 +18,9 @@ Route::get('/login', function() {
     return ['message' => 'Hello Aakrit Subedi'];
 });
 
+Route::apiResource('students', 'StudentController');
+
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
