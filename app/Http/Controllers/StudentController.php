@@ -26,7 +26,17 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        
+        $student = new Student;
+        $student->fullname = $request->fullname;
+        $student->email = $request->email;
+        $student->contact_no = $request->contact_no;
+        $student->status = 1;
+        $student->save();
+
+        return response()->json([
+            "status" => 1,
+            "message" => "Student Record added successfully."
+        ]);
     }
 
     /**
