@@ -216,7 +216,7 @@ Route::resource('students', 'StudentController'); //need to use the default name
 
 ##### Create a Student Record
 
-Add logic the `index` method in the StudentController
+Add logic the `store` method in the StudentController
 
 ```php
     public function store(Request $request)
@@ -234,11 +234,120 @@ Add logic the `index` method in the StudentController
         ]);
     }
 ```
-The snippet above imports the Student model which will interact with our students table in the database. In the `store` method, we instantiated a new Request object in the method parameter followed by a new Student object. Lastly, for every $student-><column-name> the equivalent request is fetched and saved.  
+
+The snippet above imports the Student model which will interact with our students table in the database. In the `store` method, we instantiated a new Request object in the method parameter followed by a new Student object. Lastly, for every \$student-><column-name> the equivalent request is fetched and saved.  
 If the operation is successful, a JSON response will be sent back to the API user with the message student record created and with response code 201.  
-This method is already tied to the api/students as we previously defined it in our routes file located at routes/api.php.  
+This method is already tied to the api/students as we previously defined it in our routes file located at routes/api.php.
 
 ###### Testing
+
 To test this endpoint open Postman and make a POST request to http://localhost:8000/api/students. Select the raw(JSON) option and pass the following values as seen in the image below:
 ![Store Student Data](./docs/images/postman_create.png)
+![Store AAkrit Record](./docs/images/phpmyadmin_create.png)
 
+##### Return all Student Records
+
+Now let us update the `index` method in our StudentController.  
+We will use the already imported Student model to make a simple eloquent query to return all students in the database.
+
+```php
+public function index()
+{
+    $students = Student::get()->toJson(JSON_PRETTY_PRINT);
+
+    return response($students, 200);
+}
+```
+
+The eloquent query ends with ->toJson(JSON_PRETTY_PRINT); which will serialize the object data return by eloquent into a nicely formatted JSON. The JSON is returned with the response code 200.
+
+###### Testing
+
+Assuming our application is running in the background, make a GET request to the /api/students endpoint in Postman.
+![Show All Record](./docs/images/postman_show.png)
+As seen in the image above, the endpoint returns all the student records in the database.
+
+##### Return a student record
+
+You will be creating an endpoint to return just a single student record. To begin you have to visit the `show` method in the StudentController.
+
+```php
+public function show($id)
+{
+    if (Student::where('id', $id)->exists()) {
+        $student = Student::findOrFail($id)->toJson(JSON_PRETTY_PRINT);
+
+        return response($student, 200);
+    } else {
+        return response()->json([
+            "status" => 0,
+            "message" => "Student not found"
+        ], 404);
+    }
+}
+```
+
+The snippet above first checks if a student record with the given id exists. If it does, it queries the database using eloquent to return the record with matching id in JSON with 200 as the response code. If the id given is not found in the database it will return a student not found message with a 404 response code.
+![Fetch By Id](./docs/images/postman_fetchById.png)
+Next, let us try requesting a non-existent student record.
+![Fetch By Id Failure](./docs/images/postman_fail_fetchById.png)
+As seen in the image above, a request was made to the endpoint to return the details of the student record with the id of 2 which is non-existent. Our API did a good job by returning an error message along with the 404 status code.
+
+##### Update a student record
+
+We will now be creating an endpoint to update the details of an existing student record. To begin you have to visit the `update` method in the StudentController.
+
+```php
+    public function update(Request $request, $id){
+        if (Student::where('id', $id)->exists()) {
+            $student = Student::findOrFail($id)->update($request->all());
+
+            return response([
+                "success" => 1,
+                "message" => "Student Record updated successfully"
+            ], 200);
+
+        } else {
+            return response()->json([
+                "status" => 0,
+                "message" => "Student not found"
+            ], 404);
+        }
+    }
+```
+
+###### Testing
+
+To test this endpoint, return the details of the student record with the id of 1 by making a GET request to /api/students/1.
+Next, let us change the contact_no to “+977-1-2070021” by making a PUT request to api/students/1. In order to make a PUT request, you have to pass a JSON payload.
+![Update a student record](./docs/images/postman_update.png)
+
+##### Delete a Student Record
+
+Finally, to delete a student record we will have to update the `destroy` method in our StudentController.
+Using eloquent, we will check if the id of the record requested to be deleted exists. If it exists we will delete the record. If it does not exist, we will return a not found message along with the 404 status code.
+
+```php
+public function destroy($id){
+    if (Student::where('id', $id)->exists()) {
+        Student::destroy($id);
+
+        return response()->json([
+            "message" => "Student recorded delected."
+        ], 202);
+    } else {
+        return response()->json([
+            "status" => 0,
+            "message" => "Student record not found"
+        ], 404);
+    }
+}
+```
+Now, we will make a DELETE request to students/{id} where {id} is the id of the record we are requesting to be deleted. For the purpose of testing, I will delete the record with the id of 1.
+![Delete Student](./docs/images/postman_delete.png)
+The endpoint returned a success message along with status code 202 which means the request was accepted.   
+Also, we can check by trying to request the record with the id of 2 by making a GET request to the /api/students/{id} endpoint. It should return a 404 indicating that the record could not be found.
+![Delete Failure](./docs/images/postman_fail_delete.png)
+___
+
+<h3 align="center">Thank You!!</h3>

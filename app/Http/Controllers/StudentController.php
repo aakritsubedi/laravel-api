@@ -15,7 +15,9 @@ class StudentController extends Controller
      */
     public function index()
     {
-        
+        $students = Student::get()->toJson(JSON_PRETTY_PRINT);
+
+        return response($students, 200);
     }
 
     /**
@@ -47,7 +49,16 @@ class StudentController extends Controller
      */
     public function show($id)
     {
-        //
+        if (Student::where('id', $id)->exists()) {
+            $student = Student::findOrFail($id)->toJson(JSON_PRETTY_PRINT);
+
+            return response($student, 200);
+        } else {
+            return response()->json([
+                "status" => 0,
+                "message" => "Student not found"
+            ], 404);
+        }
     }
 
     /**
@@ -59,7 +70,19 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        if (Student::where('id', $id)->exists()) {
+            $student = Student::findOrFail($id)->update($request->all());
+
+            return response([
+                "success" => 1,
+                "message" => "Student Record updated successfully"
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => 0,
+                "message" => "Student not found"
+            ], 404);
+        }
     }
 
     /**
@@ -70,6 +93,17 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        if (Student::where('id', $id)->exists()) {
+            Student::destroy($id);
+
+            return response()->json([
+                "message" => "Student recorded delected."
+            ], 202);
+        } else {
+            return response()->json([
+                "status" => 0,
+                "message" => "Student not found"
+            ], 404);
+        }
     }
 }
