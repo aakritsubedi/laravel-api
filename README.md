@@ -526,5 +526,8 @@ Route::group(['middleware' => 'jwt.verify'], function () {
 });
 ```
 ![Postman Auth](./docs/images/postman_auth.gif)
+___
+### Demo
+![Demo](./docs/images/demo.gif)
 
 <h3 align="center">Thank You!!</h3>
