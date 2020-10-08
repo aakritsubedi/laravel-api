@@ -471,6 +471,22 @@ class LoginController extends Controller
     }
 }
 ```
+Also add refresh function to generate new token after expiration.
+```php
+public function refresh() {
+    $newToken = auth()->refresh();
+    
+    return response()->json([
+        'token' => $newToken
+    ]);
+}
+```
+and add `refresh` route in `api.php`
+```php
+Route::get('/v1/refresh', 'LoginController@refresh');
+```
+
+
 
 The above login function returns the valid jwt token if credentials matches else return false.
 ![Login Token](./docs/images/postman_login.png)

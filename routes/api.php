@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/v1/login', 'LoginController@login');
+Route::get('/v1/refresh', 'LoginController@refresh');
 
 Route::group(['middleware' => 'jwt.verify'], function () {
     Route::prefix('v1')->group(function () {

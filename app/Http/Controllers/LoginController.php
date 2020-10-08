@@ -21,4 +21,12 @@ class LoginController extends Controller
             'token' => $token
         ], 200);
     }
+
+    public function refresh() {
+        $newToken = auth()->refresh();
+    
+        return response()->json([
+            'token' => $newToken
+        ]);
+    }
 }
