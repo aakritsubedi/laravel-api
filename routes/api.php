@@ -14,10 +14,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/login', 'LoginController@login');
+Route::post('/v1/login', 'LoginController@login');
 
-Route::prefix('v1')->group(function () {
-    Route::apiResource('students', 'StudentController'); 
+Route::group(['middleware' => 'jwt.verify'], function () {
+    Route::prefix('v1')->group(function () {
+        Route::apiResource('students', 'StudentController');
+    });
 });
 
 

@@ -9,11 +9,16 @@ class LoginController extends Controller
     public function login(Request $request) {
         $credentials = $request->only(['email','password']);
 
-        $token = auth()->attempt($credentials);
+       if(!$token = auth()->attempt($credentials)) {
+           return response()->json([
+               "status" => 0,
+               "message" => "Invalid Username/Password"
+           ], 401);
+       }
 
         return response()->json([
-            'users' => $credentials,
+            'user_email' => $credentials['email'],
             'token' => $token
-        ]);
+        ], 200);
     }
 }

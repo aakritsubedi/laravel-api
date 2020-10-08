@@ -455,6 +455,7 @@ $ php artisan make:controller LoginController
 ```
 
 -   add the login function that handles the login
+
 ```php
 class LoginController extends Controller
 {
@@ -470,6 +471,60 @@ class LoginController extends Controller
     }
 }
 ```
+
 The above login function returns the valid jwt token if credentials matches else return false.
+![Login Token](./docs/images/postman_login.png)
+
+#### Protecting the private routes
+
+We need to create the middleware that verifies the token before accessing the private route. The middleware return an exception error if token is invalid allowing to proceed to the next route.
+
+We need to create a `JwtMiddleware` which will protect our routes. Run this command via your terminal.
+
+```shell
+$ php artisan make:middleware JwtMiddleware
+```
+
+This will create a new middleware file inside our Middleware directory. This file can be located here app/Http/Middleware/JwtMiddleware. Open up the file and replace the content with the following:
+
+```php
+public function handle($request, Closure $next){
+    try {
+        $user = JWTAuth::parseToken()->authenticate();
+    } catch (Exception $e) {
+        if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
+            return response()->json(['status' => 'Token is Invalid']);
+        }else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException){
+            return response()->json(['status' => 'Token is Expired']);
+        }else{
+            return response()->json(['status' => 'Authorization Token not found']);
+        }
+        }
+
+        return $next($request);
+    }
+
+```
+
+This middleware extends Tymon\JWTAuth\Http\Middleware\BaseMiddleware, with this, we can catch token errors and return appropriate error codes to our users.  
+Next, we need to register our middleware. Open app/http/Kernel.php and add the following:
+
+```php
+  [...]
+    protected $routeMiddleware = [
+        [...]
+        'jwt.verify' => \App\Http\Middleware\JwtMiddleware::class,
+    ];
+    [...]
+```
+Next, Open routes/api.php and add the content with the following:
+```php
+Route::group(['middleware' => 'jwt.verify'], function () {
+    Route::prefix('v1')->group(function () {
+        Route::apiResource('students', 'StudentController');
+    });
+});
+```
+![Postman Auth](./docs/images/postman_auth.gif)
 
 <h3 align="center">Thank You!!</h3>
