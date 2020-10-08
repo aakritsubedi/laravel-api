@@ -474,11 +474,16 @@ class LoginController extends Controller
 Also add refresh function to generate new token after expiration.
 ```php
 public function refresh() {
+try{
     $newToken = auth()->refresh();
+}
+catch(\Tymon\JWTAuth\Exceptions\TokenInvalidException $e){
+    return response()->json(['error' => $e->getMessage()], 401);
+}
     
-    return response()->json([
-        'token' => $newToken
-    ]);
+return response()->json([
+    'token' => $newToken
+]);
 }
 ```
 and add `refresh` route in `api.php`
