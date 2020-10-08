@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/login', function() {
-    return ['message' => 'Hello Aakrit Subedi'];
-});
+Route::post('/login', 'LoginController@login');
 
-Route::apiResource('students', 'StudentController');
+Route::prefix('v1')->group(function () {
+    Route::apiResource('students', 'StudentController'); 
+});
 
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {

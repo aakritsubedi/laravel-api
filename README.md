@@ -343,11 +343,133 @@ public function destroy($id){
     }
 }
 ```
+
+###### Testing
+
 Now, we will make a DELETE request to students/{id} where {id} is the id of the record we are requesting to be deleted. For the purpose of testing, I will delete the record with the id of 1.
 ![Delete Student](./docs/images/postman_delete.png)
-The endpoint returned a success message along with status code 202 which means the request was accepted.   
+The endpoint returned a success message along with status code 202 which means the request was accepted.  
 Also, we can check by trying to request the record with the id of 2 by making a GET request to the /api/students/{id} endpoint. It should return a 404 indicating that the record could not be found.
 ![Delete Failure](./docs/images/postman_fail_delete.png)
-___
+
+---
+
+###### Validation
+
+Laravel provides several different approaches to validate your application's incoming data. By default, Laravel's base controller class uses a `ValidatesRequests` trait which provides a convenient method to validate incoming HTTP requests with a variety of powerful validation rules.  
+Refer [Validation Docs](https://laravel.com/docs/8.x/validation) for more.
+
+```php
+// Validate the data
+$request->validate([
+    'fullname' => ['required', 'max:255'],
+    'email' => ['required', 'unique:students'],
+]);
+```
+
+###### Prefix API
+
+The prefix method may be used to prefix each route in the group with a given URI. For example, you may want to prefix all route URIs within the group with v1(generally used for versioning):
+
+```php
+Route::prefix('v1')->group(function () {
+    Route::apiResource('students', 'StudentController');
+});
+```
+
+```shell
+$ php artisan route:list
+```
+
+![Route List](./docs/images/route_list.png);
+
+### JWT Authentication
+
+-   Install via composer
+    Run the following command to pull in the latest version:
+
+```shell
+$ composer require tymon/jwt-auth
+```
+
+-   Publish the config
+    Run the following command to publish the package config file:
+
+```shell
+$ php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"
+```
+
+You should now have a config/jwt.php file that allows you to configure the basics of this package.
+
+-   Generate secret key
+    JWT auth package provides the php artisan command to set the secret
+
+```shell
+$ php artisan jwt:secret
+```
+
+This will update your .env file with something like JWT_SECRET=foobar  
+It is the key that will be used to sign your tokens. How that happens exactly will depend on the algorithm that you choose to use.
+
+-   Update the .env file to change the default values
+
+##### Implementing the JWT Authentication
+
+-   go to `config/auth.php` file and update driver in gaurds for api to 'jwt':
+
+```php
+'api' => [
+    'driver' => 'jwt',
+    'provider' => 'users',
+    'hash' => false,
+],
+```
+
+-   and also update the default driver to `api`
+
+```php
+'defaults' => [
+    'guard' => 'api',
+    'passwords' => 'users',
+],
+```
+
+-   go to `app/User.php` and
+    -   include the library `use Tymon\JWTAuth\Contracts\JWTSubject;`
+    -   add a function named `getJWTIdentifier` to return the keys
+    ```php
+    public function getJWTIdentifier(){
+      return $this->getKey();
+    }
+    ```
+    -   aslo, add a funtion `getJWTCustomClaims` to return an empty array
+    ```php
+    public function getJWTCustomClaims(){
+      return [];
+    }
+    ```
+-   create a LoginController
+
+```php
+$ php artisan make:controller LoginController
+```
+
+-   add the login function that handles the login
+```php
+class LoginController extends Controller
+{
+    public function login(Request $request) {
+        $credentials = $request->only(['email','password']);
+
+        $token = auth()->attempt($credentials);
+
+        return response()->json([
+            'users' => $credentials,
+            'token' => $token
+        ]);
+    }
+}
+```
+The above login function returns the valid jwt token if credentials matches else return false.
 
 <h3 align="center">Thank You!!</h3>
