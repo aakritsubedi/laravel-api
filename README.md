@@ -188,7 +188,7 @@ Controllers are meant to group associated request handling logic within a single
 Now that we have the basics of the application set up, we can proceed to create a controller that will contain the methods for our API by running:
 
 ```shell
-$ php artisan make:controller API/StudentController --api
+$ php artisan make:controller StudentController --api
 ```
 
 ![Controller](./docs/images/terminal_result_make_controller.png)
@@ -352,6 +352,27 @@ The endpoint returned a success message along with status code 202 which means t
 Also, we can check by trying to request the record with the id of 2 by making a GET request to the /api/students/{id} endpoint. It should return a 404 indicating that the record could not be found.
 ![Delete Failure](./docs/images/postman_fail_delete.png)
 
+##### Adding user controller
+
+By default, Laravel includes an App\Models\User Eloquent model in your `app/Models` directory. This model may be used with the default Eloquent authentication driver. If your application is not using Eloquent, you may use the database authentication driver which uses the Laravel query builder.
+
+Write a resource function to perform different functionalities in controller. 
+
+-  we can proceed to create a controller that will contain the methods for our API by running:
+```shell
+$ php artisan make:controller UserController -r --api
+```
+You will find a new file named UserController.php in the app\Http\Controllers directory. Proceed to the routes directory and open the api.php file and create the endpoints that will reference the methods created earlier in the UserController.
+```php
+Route::group(['middleware' => 'jwt.verify'], function () {
+    Route::prefix('v1')->group(function () {
+        Route::apiResource('students', 'StudentController');
+        Route::apiResource('users', 'UserController');
+    });
+});
+```
+- add all associated request handling logic within a UserController. Refer to [this file](./app/Http/Controllers/UserController.php).  
+![User Demo](./docs/images/postman_users.gif)
 ---
 
 ###### Validation

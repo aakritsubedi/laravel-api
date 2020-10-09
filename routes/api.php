@@ -20,6 +20,7 @@ Route::get('/v1/refresh', 'LoginController@refresh');
 Route::group(['middleware' => 'jwt.verify'], function () {
     Route::prefix('v1')->group(function () {
         Route::apiResource('students', 'StudentController');
+        Route::apiResource('users', 'UserController');
     });
 });
 
